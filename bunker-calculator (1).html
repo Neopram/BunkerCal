@@ -318,6 +318,11 @@
             font-size: 11px;
             cursor: help;
             position: relative;
+            transition: background 0.2s;
+        }
+
+        .help-icon:active {
+            background: var(--ibm-blue-60);
         }
 
         .help-tooltip {
@@ -335,6 +340,7 @@
             box-shadow: var(--shadow-lg);
             display: none;
             z-index: 1000;
+            pointer-events: none;
         }
 
         .help-tooltip::after {
@@ -347,7 +353,9 @@
             border-top-color: var(--ibm-gray-90);
         }
 
-        .help-icon:hover .help-tooltip {
+        /* Mostrar tooltip en hover (desktop) y en click (móvil) */
+        .help-icon:hover .help-tooltip,
+        .help-icon.active .help-tooltip {
             display: block;
         }
 
@@ -666,8 +674,10 @@
                 left: 0;
             }
             
+            /* CAMBIO: Mostrar panel derecho abajo en móviles */
             .right-panel {
-                display: none;
+                display: flex;
+                order: 3;
             }
 
             .mobile-menu-toggle {
@@ -1723,6 +1733,34 @@
             // Sulfur content validation
             const sulfurInput = document.getElementById('sulfur');
             sulfurInput.addEventListener('input', validateSulfurContent);
+
+            // Tooltips para móviles (tap para mostrar/ocultar)
+            const helpIcons = document.querySelectorAll('.help-icon');
+            helpIcons.forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Cerrar otros tooltips abiertos
+                    helpIcons.forEach(otherIcon => {
+                        if (otherIcon !== icon) {
+                            otherIcon.classList.remove('active');
+                        }
+                    });
+                    
+                    // Toggle este tooltip
+                    this.classList.toggle('active');
+                });
+            });
+
+            // Cerrar tooltips al hacer click fuera
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.help-icon')) {
+                    helpIcons.forEach(icon => {
+                        icon.classList.remove('active');
+                    });
+                }
+            });
         }
 
         function selectMethod(method, event) {
