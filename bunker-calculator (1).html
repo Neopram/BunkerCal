@@ -1699,6 +1699,47 @@
             loadFromLocalStorage();
             initializeEventListeners();
             addAuditEntry('System initialized - Bunker Calculator PRO v2.0');
+            
+            // Mobile menu overlay event listener
+            const overlay = document.querySelector('.mobile-sidebar-overlay');
+            if (overlay) {
+                overlay.addEventListener('click', toggleMobileMenu);
+            }
+
+            // Close mobile menu when selecting a nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 1024) {
+                        setTimeout(toggleMobileMenu, 300);
+                    }
+                });
+            });
+
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('[PWA] Service Worker registered:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('[PWA] Service Worker registration failed:', error);
+                    });
+            }
+
+            // Install prompt for PWA
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                console.log('[PWA] Install prompt available');
+                // You can show a custom install button here
+            });
+
+            // Track installation
+            window.addEventListener('appinstalled', () => {
+                console.log('[PWA] App installed successfully');
+                deferredPrompt = null;
+            });
         });
 
         function updateDateTime() {
@@ -2448,49 +2489,6 @@ ${auditTrail.slice(-10).join('\n')}
             overlay.classList.toggle('active');
         }
 
-        // Close mobile menu when clicking overlay
-        document.addEventListener('DOMContentLoaded', function() {
-            const overlay = document.querySelector('.mobile-sidebar-overlay');
-            if (overlay) {
-                overlay.addEventListener('click', toggleMobileMenu);
-            }
-
-            // Close mobile menu when selecting a nav item
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    if (window.innerWidth <= 1024) {
-                        setTimeout(toggleMobileMenu, 300);
-                    }
-                });
-            });
-
-            // Register Service Worker for PWA
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(registration => {
-                        console.log('[PWA] Service Worker registered:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('[PWA] Service Worker registration failed:', error);
-                    });
-            }
-
-            // Install prompt for PWA
-            let deferredPrompt;
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                console.log('[PWA] Install prompt available');
-                // You can show a custom install button here
-            });
-
-            // Track installation
-            window.addEventListener('appinstalled', () => {
-                console.log('[PWA] App installed successfully');
-                deferredPrompt = null;
-            });
-        });
-
         // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey || e.metaKey) {
@@ -2522,7 +2520,7 @@ ${auditTrail.slice(-10).join('\n')}
     </button>
 
     <!-- Mobile Sidebar Overlay -->
-    <div class="mobile-sidebar-overlay"></div>
+    <div class="mobile-sidebar-overlay" id="mobileOverlay"></div>
 
 </body>
 </html>

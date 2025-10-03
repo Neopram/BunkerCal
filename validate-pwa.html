@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Validation Tool - Bunker Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, #0043ce 0%, #4589ff 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+        }
+        
+        .test-section h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .test-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #ddd;
+        }
+        
+        .test-item.pass {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        
+        .test-item.fail {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .test-item.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .test-icon {
+            font-size: 24px;
+            margin-right: 12px;
+            min-width: 30px;
+        }
+        
+        .test-label {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .test-status {
+            font-weight: bold;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: white;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0043ce;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #003399;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,67,206,0.3);
+        }
+        
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .summary h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .summary .score {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0043ce;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 PWA Validation Tool</h1>
+            <p>Bunker Calculator PRO v2.0 - Automated Testing</p>
+        </div>
+        
+        <div class="content">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Running validation tests...</p>
+            </div>
+            
+            <div id="results" style="display: none;">
+                <div class="summary">
+                    <h3>Validation Score</h3>
+                    <div class="score" id="score">0/0</div>
+                    <p id="status">Checking...</p>
+                </div>
+                
+                <div class="test-section">
+                    <h2>📱 PWA Requirements</h2>
+                    <div id="pwa-tests"></div>
+                </div>
+                
+                <div class="test-section">
+                    <h2>🎨 UI/UX Features</h2>
+                    <div id="ui-tests"></div>
+                </div>
+                
+                <div class="test-section">
+                    <h2>⚙️ Functionality</h2>
+                    <div id="func-tests"></div>
+                </div>
+                
+                <div class="actions">
+                    <a href="bunker-calculator (1).html" class="btn">Open Application</a>
+                    <button onclick="location.reload()" class="btn" style="background: #6c757d;">Re-run Tests</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const tests = {
+            pwa: [
+                { name: 'Service Worker Support', check: () => 'serviceWorker' in navigator },
+                { name: 'Manifest File Exists', check: async () => {
+                    try {
+                        const response = await fetch('manifest.json');
+                        return response.ok;
+                    } catch {
+                        return false;
+                    }
+                }},
+                { name: 'HTTPS or Localhost', check: () => location.protocol === 'https:' || location.hostname === 'localhost' },
+                { name: 'Viewport Meta Tag', check: () => !!document.querySelector('meta[name="viewport"]') },
+                { name: 'Theme Color Meta Tag', check: () => !!document.querySelector('meta[name="theme-color"]') },
+                { name: 'Apple Touch Icon', check: () => !!document.querySelector('link[rel="apple-touch-icon"]') }
+            ],
+            ui: [
+                { name: 'Mobile Menu Toggle Button', check: () => !!document.querySelector('.mobile-menu-toggle') },
+                { name: 'Mobile Sidebar Overlay', check: () => !!document.querySelector('.mobile-sidebar-overlay') },
+                { name: 'Responsive CSS (Media Queries)', check: () => {
+                    const styles = Array.from(document.styleSheets);
+                    return styles.some(sheet => {
+                        try {
+                            const rules = Array.from(sheet.cssRules || []);
+                            return rules.some(rule => rule.type === CSSRule.MEDIA_RULE);
+                        } catch {
+                            return false;
+                        }
+                    });
+                }},
+                { name: 'Navigation Items Present', check: () => document.querySelectorAll('.nav-item').length > 0 },
+                { name: 'Help Icons (Tooltips)', check: () => document.querySelectorAll('.help-icon').length > 0 }
+            ],
+            func: [
+                { name: 'selectMethod Function Exists', check: () => typeof window.selectMethod === 'function' },
+                { name: 'switchTab Function Exists', check: () => typeof window.switchTab === 'function' },
+                { name: 'toggleMobileMenu Function Exists', check: () => typeof window.toggleMobileMenu === 'function' },
+                { name: 'Form Inputs Present', check: () => document.querySelectorAll('.form-input').length > 0 },
+                { name: 'Calculation Functions', check: () => typeof window.performFullCalculation === 'function' },
+                { name: 'LocalStorage Available', check: () => {
+                    try {
+                        localStorage.setItem('test', 'test');
+                        localStorage.removeItem('test');
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                }}
+            ]
+        };
+        
+        async function runTests() {
+            const results = {
+                pwa: [],
+                ui: [],
+                func: []
+            };
+            
+            // Run PWA tests
+            for (const test of tests.pwa) {
+                const passed = typeof test.check === 'function' ? await test.check() : false;
+                results.pwa.push({ name: test.name, passed });
+            }
+            
+            // Run UI tests
+            for (const test of tests.ui) {
+                const passed = typeof test.check === 'function' ? await test.check() : false;
+                results.ui.push({ name: test.name, passed });
+            }
+            
+            // Run Functionality tests
+            for (const test of tests.func) {
+                const passed = typeof test.check === 'function' ? await test.check() : false;
+                results.func.push({ name: test.name, passed });
+            }
+            
+            return results;
+        }
+        
+        function renderTest(test) {
+            const status = test.passed ? 'PASS' : 'FAIL';
+            const icon = test.passed ? '✅' : '❌';
+            const className = test.passed ? 'pass' : 'fail';
+            
+            return `
+                <div class="test-item ${className}">
+                    <div class="test-icon">${icon}</div>
+                    <div class="test-label">${test.name}</div>
+                    <div class="test-status">${status}</div>
+                </div>
+            `;
+        }
+        
+        function calculateScore(results) {
+            const allTests = [...results.pwa, ...results.ui, ...results.func];
+            const passed = allTests.filter(t => t.passed).length;
+            const total = allTests.length;
+            return { passed, total, percentage: Math.round((passed / total) * 100) };
+        }
+        
+        async function displayResults() {
+            // Wait a bit for dramatic effect
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const results = await runTests();
+            const score = calculateScore(results);
+            
+            // Render results
+            document.getElementById('pwa-tests').innerHTML = results.pwa.map(renderTest).join('');
+            document.getElementById('ui-tests').innerHTML = results.ui.map(renderTest).join('');
+            document.getElementById('func-tests').innerHTML = results.func.map(renderTest).join('');
+            
+            // Update score
+            document.getElementById('score').textContent = `${score.passed}/${score.total}`;
+            
+            // Update status
+            let statusText = '';
+            let statusColor = '';
+            if (score.percentage === 100) {
+                statusText = '🎉 Perfect! All tests passed!';
+                statusColor = '#28a745';
+            } else if (score.percentage >= 80) {
+                statusText = '✨ Great! Most tests passed.';
+                statusColor = '#ffc107';
+            } else {
+                statusText = '⚠️ Some issues found. Please review.';
+                statusColor = '#dc3545';
+            }
+            
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = statusText;
+            statusEl.style.color = statusColor;
+            
+            // Show results
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        // Run tests on load
+        window.addEventListener('load', displayResults);
+    </script>
+</body>
+</html>
