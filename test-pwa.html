@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test - Bunker Calculator PRO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .test-label {
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .test-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .btn {
+            background: #0043ce;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #003399;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,67,206,0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .icon {
+            font-size: 24px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .icon-item {
+            text-align: center;
+        }
+        
+        .icon-preview {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .icon-size {
+            font-size: 11px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚢 PWA Test Suite</h1>
+        <p class="subtitle">Bunker Calculator PRO v2.0 - Verification</p>
+        
+        <!-- Service Worker Test -->
+        <div class="test-section">
+            <div class="test-title">
+                <span class="icon">⚙️</span>
+                Service Worker
+                <span class="status pending" id="sw-status">Checking...</span>
+            </div>
+            <div class="test-item">
+                <span class="test-label">Registration:</span>
+                <span class="test-value" id="sw-registration">-</span>
+            </div>
+            <div class="test-item">
+                <span class="test-label">State:</span>
+                <span class="test-value" id="sw-state">-</span>
+            </div>
+            <div class="test-item">
+                <span class="test-label">Scope:</span>
+                <span class="test-value" id="sw-scope">-</span>
+            </div>
+        </div>
+        
+        <!-- Manifest Test -->
+        <div class="test-section">
+            <div class="test-title">
+                <span class="icon">📱</span>
+                PWA Manifest
+                <span class="status pending" id="manifest-status">Checking...</span>
+            </div>
+            <div class="test-item">
+                <span class="test-label">File:</span>
+                <span class="test-value" id="manifest-file">-</span>
+            </div>
+            <div class="test-item">
+                <span class="test-label">Installable:</span>
+                <span class="test-value" id="manifest-installable">-</span>
+            </div>
+        </div>
+        
+        <!-- Icons Test -->
+        <div class="test-section">
+            <div class="test-title">
+                <span class="icon">🎨</span>
+                App Icons
+                <span class="status pending" id="icons-status">Checking...</span>
+            </div>
+            <div class="icon-grid" id="icons-grid">
+                <!-- Icons will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Device Info -->
+        <div class="test-section">
+            <div class="test-title">
+                <span class="icon">📊</span>
+                Device Information
+            </div>
+            <div class="test-item">
+                <span class="test-label">Screen:</span>
+                <span class="test-value" id="device-screen">-</span>
+            </div>
+            <div class="test-item">
+                <span class="test-label">User Agent:</span>
+                <span class="test-value" id="device-ua" style="font-size: 11px;">-</span>
+            </div>
+            <div class="test-item">
+                <span class="test-label">Standalone:</span>
+                <span class="test-value" id="device-standalone">-</span>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <button class="btn" onclick="window.location.href='bunker-calculator (1).html'">
+            🚀 Launch Bunker Calculator PRO
+        </button>
+        
+        <button class="btn" onclick="location.reload()" style="background: #6c757d;">
+            🔄 Refresh Tests
+        </button>
+        
+        <div class="footer">
+            Bunker Calculator PRO v2.0 | PWA Diagnostics
+        </div>
+    </div>
+    
+    <script>
+        // Test Service Worker
+        async function testServiceWorker() {
+            const statusEl = document.getElementById('sw-status');
+            const regEl = document.getElementById('sw-registration');
+            const stateEl = document.getElementById('sw-state');
+            const scopeEl = document.getElementById('sw-scope');
+            
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    if (registration) {
+                        statusEl.textContent = 'Active';
+                        statusEl.className = 'status success';
+                        regEl.textContent = '✅ Registered';
+                        stateEl.textContent = registration.active ? 'Active' : 'Installing';
+                        scopeEl.textContent = registration.scope.split('/').pop() || '/';
+                    } else {
+                        statusEl.textContent = 'Not Found';
+                        statusEl.className = 'status error';
+                        regEl.textContent = '❌ Not registered';
+                        stateEl.textContent = 'N/A';
+                        scopeEl.textContent = 'N/A';
+                    }
+                } catch (error) {
+                    statusEl.textContent = 'Error';
+                    statusEl.className = 'status error';
+                    regEl.textContent = '❌ Error';
+                    console.error('SW Error:', error);
+                }
+            } else {
+                statusEl.textContent = 'Not Supported';
+                statusEl.className = 'status error';
+                regEl.textContent = '❌ Not supported';
+            }
+        }
+        
+        // Test Manifest
+        async function testManifest() {
+            const statusEl = document.getElementById('manifest-status');
+            const fileEl = document.getElementById('manifest-file');
+            const installableEl = document.getElementById('manifest-installable');
+            
+            try {
+                const response = await fetch('manifest.json');
+                if (response.ok) {
+                    const manifest = await response.json();
+                    statusEl.textContent = 'Found';
+                    statusEl.className = 'status success';
+                    fileEl.textContent = '✅ manifest.json';
+                    installableEl.textContent = manifest.display === 'standalone' ? '✅ Yes' : '⚠️ Check display mode';
+                } else {
+                    throw new Error('Not found');
+                }
+            } catch (error) {
+                statusEl.textContent = 'Not Found';
+                statusEl.className = 'status error';
+                fileEl.textContent = '❌ Missing';
+                installableEl.textContent = '❌ No';
+            }
+        }
+        
+        // Test Icons
+        async function testIcons() {
+            const statusEl = document.getElementById('icons-status');
+            const gridEl = document.getElementById('icons-grid');
+            const sizes = [16, 32, 72, 96, 128, 144, 152, 167, 180, 192, 384, 512];
+            
+            let foundCount = 0;
+            gridEl.innerHTML = '';
+            
+            for (const size of sizes) {
+                const iconPath = `icon-${size}.png`;
+                const img = new Image();
+                
+                img.onload = () => {
+                    foundCount++;
+                    const item = document.createElement('div');
+                    item.className = 'icon-item';
+                    item.innerHTML = `
+                        <img src="${iconPath}" class="icon-preview" alt="${size}px">
+                        <div class="icon-size">${size}px ✅</div>
+                    `;
+                    gridEl.appendChild(item);
+                    
+                    if (foundCount === sizes.length) {
+                        statusEl.textContent = 'All Found';
+                        statusEl.className = 'status success';
+                    }
+                };
+                
+                img.onerror = () => {
+                    const item = document.createElement('div');
+                    item.className = 'icon-item';
+                    item.innerHTML = `
+                        <div class="icon-preview" style="background: #f8d7da;"></div>
+                        <div class="icon-size">${size}px ❌</div>
+                    `;
+                    gridEl.appendChild(item);
+                };
+                
+                img.src = iconPath;
+            }
+            
+            setTimeout(() => {
+                if (foundCount < sizes.length) {
+                    statusEl.textContent = `${foundCount}/${sizes.length} Found`;
+                    statusEl.className = foundCount > 0 ? 'status pending' : 'status error';
+                }
+            }, 2000);
+        }
+        
+        // Device Info
+        function getDeviceInfo() {
+            document.getElementById('device-screen').textContent = 
+                `${window.innerWidth}x${window.innerHeight}px`;
+            
+            const ua = navigator.userAgent;
+            const shortUA = ua.length > 50 ? ua.substring(0, 50) + '...' : ua;
+            document.getElementById('device-ua').textContent = shortUA;
+            
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                                window.navigator.standalone ||
+                                document.referrer.includes('android-app://');
+            document.getElementById('device-standalone').textContent = 
+                isStandalone ? '✅ Yes (PWA Mode)' : '❌ No (Browser Mode)';
+        }
+        
+        // Run all tests
+        window.addEventListener('load', () => {
+            testServiceWorker();
+            testManifest();
+            testIcons();
+            getDeviceInfo();
+        });
+    </script>
+</body>
+</html>

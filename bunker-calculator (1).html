@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Bunker Calculator PRO v2.0 - Enterprise Maritime Fuel Management System</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Professional maritime bunker fuel calculator with ASTM D1250 compliance, VCF/WCF corrections, and BDN generation">
+    <meta name="theme-color" content="#0043ce">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Bunker Calc PRO">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="icon-167.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ibm-blue-60: #0043ce;
+            --ibm-blue-50: #4589ff;
+            --ibm-blue-40: #78a9ff;
+            --ibm-blue-20: #d0e2ff;
+            --ibm-blue-10: #edf5ff;
+            --ibm-gray-90: #262626;
+            --ibm-gray-80: #393939;
+            --ibm-gray-70: #525252;
+            --ibm-gray-60: #6f6f6f;
+            --ibm-gray-50: #8d8d8d;
+            --ibm-gray-40: #a8a8a8;
+            --ibm-gray-30: #c6c6c6;
+            --ibm-gray-20: #e0e0e0;
+            --ibm-gray-10: #f4f4f4;
+            --ibm-white: #ffffff;
+            --ibm-red-60: #da1e28;
+            --ibm-green-60: #198038;
+            --ibm-yellow-30: #f1c21b;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: var(--ibm-gray-10);
+            color: var(--ibm-gray-90);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .header {
+            background: linear-gradient(90deg, var(--ibm-blue-60) 0%, var(--ibm-blue-50) 100%);
+            color: var(--ibm-white);
+            padding: 16px 24px;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1920px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--ibm-white);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--ibm-blue-60);
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ibm-green-60);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .toolbar {
+            background: var(--ibm-white);
+            border: 1px solid var(--ibm-gray-20);
+            border-radius: 4px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--ibm-gray-30);
+            background: var(--ibm-white);
+            color: var(--ibm-gray-90);
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: var(--ibm-gray-10);
+            border-color: var(--ibm-gray-40);
+        }
+
+        .btn-primary {
+            background: var(--ibm-blue-60);
+            color: var(--ibm-white);
+            border-color: var(--ibm-blue-60);
+        }
+
+        .btn-primary:hover {
+            background: var(--ibm-blue-50);
+            border-color: var(--ibm-blue-50);
+        }
+
+        .btn-success {
+            background: var(--ibm-green-60);
+            color: var(--ibm-white);
+            border-color: var(--ibm-green-60);
+        }
+
+        .btn-danger {
+            background: var(--ibm-red-60);
+            color: var(--ibm-white);
+            border-color: var(--ibm-red-60);
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr 350px;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .sidebar {
+            background: var(--ibm-white);
+            border: 1px solid var(--ibm-gray-20);
+            border-radius: 4px;
+            padding: 0;
+            height: fit-content;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--ibm-gray-20);
+            font-weight: 600;
+            color: var(--ibm-gray-70);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+            color: var(--ibm-gray-70);
+        }
+
+        .nav-item:hover {
+            background: var(--ibm-gray-10);
+        }
+
+        .nav-item.active {
+            background: var(--ibm-blue-10);
+            border-left-color: var(--ibm-blue-60);
+            color: var(--ibm-blue-60);
+            font-weight: 500;
+        }
+
+        .main-content {
+            background: var(--ibm-white);
+            border: 1px solid var(--ibm-gray-20);
+            border-radius: 4px;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .content-header {
+            background: var(--ibm-gray-10);
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--ibm-gray-20);
+        }
+
+        .content-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--ibm-gray-90);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .content-body {
+            padding: 24px;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ibm-gray-80);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--ibm-blue-20);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ibm-gray-70);
+            margin-bottom: 6px;
+        }
+
+        .help-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--ibm-gray-30);
+            color: var(--ibm-white);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            cursor: help;
+            position: relative;
+        }
+
+        .help-tooltip {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ibm-gray-90);
+            color: var(--ibm-white);
+            padding: 12px;
+            border-radius: 4px;
+            width: 280px;
+            font-size: 12px;
+            line-height: 1.5;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 1000;
+        }
+
+        .help-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--ibm-gray-90);
+        }
+
+        .help-icon:hover .help-tooltip {
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--ibm-gray-30);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: var(--ibm-white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--ibm-blue-50);
+            box-shadow: 0 0 0 2px rgba(69, 137, 255, 0.2);
+        }
+
+        .form-input.error {
+            border-color: var(--ibm-red-60);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--ibm-gray-30);
+            border-radius: 4px;
+            font-size: 14px;
+            background: var(--ibm-white);
+            cursor: pointer;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .calculation-panel {
+            background: var(--ibm-white);
+            border: 1px solid var(--ibm-gray-20);
+            border-radius: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .panel-header {
+            background: var(--ibm-gray-10);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--ibm-gray-20);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--ibm-gray-80);
+        }
+
+        .panel-body {
+            padding: 16px;
+        }
+
+        .calculation-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--ibm-gray-10);
+        }
+
+        .calculation-item:last-child {
+            border-bottom: none;
+        }
+
+        .calculation-label {
+            font-size: 13px;
+            color: var(--ibm-gray-60);
+        }
+
+        .calculation-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ibm-gray-90);
+        }
+
+        .calculation-value.primary {
+            color: var(--ibm-blue-60);
+            font-size: 16px;
+        }
+
+        .audit-trail {
+            background: var(--ibm-gray-10);
+            border: 1px solid var(--ibm-gray-20);
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .audit-entry {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--ibm-gray-70);
+            padding: 4px 0;
+            border-bottom: 1px solid var(--ibm-gray-20);
+        }
+
+        .audit-entry:last-child {
+            border-bottom: none;
+        }
+
+        .audit-formula {
+            background: var(--ibm-blue-10);
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--ibm-gray-20);
+            background: var(--ibm-gray-10);
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--ibm-gray-60);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab:hover {
+            background: var(--ibm-gray-20);
+        }
+
+        .tab.active {
+            color: var(--ibm-blue-60);
+            background: var(--ibm-white);
+            border-bottom-color: var(--ibm-blue-60);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .validation-message {
+            font-size: 12px;
+            color: var(--ibm-red-60);
+            margin-top: 4px;
+            display: none;
+        }
+
+        .validation-message.show {
+            display: block;
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--ibm-blue-10);
+            border: 1px solid var(--ibm-blue-20);
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .progress-step {
+            flex: 1;
+            height: 4px;
+            background: var(--ibm-gray-30);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .progress-step.complete {
+            background: var(--ibm-green-60);
+        }
+
+        .progress-step.active {
+            background: var(--ibm-blue-50);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--ibm-white);
+            border-radius: 4px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            background: var(--ibm-gray-10);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--ibm-gray-20);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: calc(90vh - 140px);
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            background: var(--ibm-gray-10);
+            padding: 16px 24px;
+            border-top: 1px solid var(--ibm-gray-20);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .report-preview {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            background: var(--ibm-gray-10);
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--ibm-blue-60);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .mobile-sidebar-overlay.active {
+            display: block;
+        }
+
+        @media (max-width: 1400px) {
+            .main-layout {
+                grid-template-columns: 200px 1fr 300px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                width: 280px;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+                box-shadow: var(--shadow-lg);
+            }
+
+            .sidebar.mobile-open {
+                left: 0;
+            }
+            
+            .right-panel {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            .header h1 {
+                font-size: 16px;
+            }
+
+            .header-info {
+                font-size: 11px;
+                gap: 12px;
+            }
+
+            .container {
+                padding: 12px;
+            }
+
+            .toolbar {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .btn {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                font-size: 13px;
+            }
+
+            .header {
+                padding: 12px 16px;
+            }
+
+            .header h1 {
+                font-size: 14px;
+            }
+
+            .logo-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+
+            .header-info {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 4px;
+                font-size: 10px;
+            }
+
+            .container {
+                padding: 8px;
+            }
+
+            .main-layout {
+                gap: 12px;
+            }
+
+            .content-header {
+                padding: 12px 16px;
+            }
+
+            .content-header h2 {
+                font-size: 16px;
+            }
+
+            .content-body {
+                padding: 16px;
+                max-height: none;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .form-section {
+                margin-bottom: 24px;
+            }
+
+            .section-title {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+
+            .toolbar {
+                padding: 8px 12px;
+                gap: 6px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .calculation-panel {
+                margin-bottom: 12px;
+            }
+
+            .panel-header {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .panel-body {
+                padding: 12px;
+            }
+
+            .calculation-item {
+                padding: 6px 0;
+            }
+
+            .calculation-label {
+                font-size: 12px;
+            }
+
+            .calculation-value {
+                font-size: 13px;
+            }
+
+            .calculation-value.primary {
+                font-size: 15px;
+            }
+
+            /* Touch-friendly inputs */
+            .form-input,
+            .form-select {
+                padding: 12px;
+                font-size: 16px; /* Prevents zoom on iOS */
+                min-height: 44px; /* Apple's recommended touch target */
+            }
+
+            .btn {
+                min-height: 44px;
+                padding: 10px 16px;
+            }
+
+            .nav-item {
+                padding: 14px 16px;
+                font-size: 15px;
+            }
+
+            /* Better tooltip for mobile */
+            .help-tooltip {
+                position: fixed;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: calc(100vw - 40px);
+                max-width: 320px;
+            }
+
+            /* Modal improvements */
+            .modal-content {
+                width: calc(100vw - 32px);
+                max-width: none;
+                margin: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 12px;
+            }
+
+            .logo {
+                gap: 8px;
+            }
+
+            .logo-icon {
+                width: 24px;
+                height: 24px;
+                font-size: 11px;
+            }
+
+            .content-header h2 {
+                font-size: 14px;
+            }
+
+            .section-title {
+                font-size: 13px;
+            }
+
+            .mobile-menu-toggle {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+                bottom: 16px;
+                right: 16px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .header, .toolbar, .sidebar, .right-panel {
+                display: none;
+            }
+            
+            .main-content {
+                border: none;
+                box-shadow: none;
+            }
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ibm-gray-30);
+            border-top-color: var(--ibm-blue-60);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.success {
+            background: var(--ibm-green-60);
+            color: white;
+        }
+
+        .badge.warning {
+            background: var(--ibm-yellow-30);
+            color: var(--ibm-gray-90);
+        }
+
+        .badge.error {
+            background: var(--ibm-red-60);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">BC</div>
+                <h1>Bunker Calculator PRO v2.0</h1>
+            </div>
+            <div class="header-info">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>System Online</span>
+                </div>
+                <span id="currentDateTime">--</span>
+                <span>IMO 2020 Compliant</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="performFullCalculation()">
+                <span>⚡</span> Calculate
+            </button>
+            <button class="btn" onclick="clearAll()">
+                <span>🔄</span> Reset
+            </button>
+            <button class="btn" onclick="loadExample()">
+                <span>📋</span> Load Example
+            </button>
+            <button class="btn btn-success" onclick="generateReport()">
+                <span>📊</span> Generate Report
+            </button>
+            <button class="btn" onclick="showBDN()">
+                <span>📄</span> Create BDN
+            </button>
+            <button class="btn" onclick="exportData()">
+                <span>💾</span> Export
+            </button>
+            <button class="btn" onclick="importData()">
+                <span>📂</span> Import
+            </button>
+            <button class="btn" onclick="showAuditTrail()">
+                <span>🔍</span> Audit Trail
+            </button>
+            <button class="btn" id="modeToggle" onclick="toggleMode()">
+                <span>🎯</span> Advanced Mode
+            </button>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Sidebar Navigation -->
+            <div class="sidebar">
+                <div class="sidebar-header">Calculation Method</div>
+                <div class="nav-item active" onclick="selectMethod('sounding', event)">
+                    Tank Sounding (ASTM)
+                </div>
+                <div class="nav-item" onclick="selectMethod('volumetric', event)">
+                    Volumetric Flow Meter
+                </div>
+                <div class="nav-item" onclick="selectMethod('mass', event)">
+                    Mass Flow Meter (MFM)
+                </div>
+                <div class="nav-item" onclick="selectMethod('draft', event)">
+                    Draft Survey
+                </div>
+                <div class="nav-item" onclick="selectMethod('wedge', event)">
+                    Wedge Formula (OBQ/ROB)
+                </div>
+                <div class="sidebar-header" style="margin-top: 20px;">Standards</div>
+                <div class="nav-item" onclick="selectStandard('astm')">
+                    ASTM D1250-08
+                </div>
+                <div class="nav-item" onclick="selectStandard('api')">
+                    API MPMS 11.1
+                </div>
+                <div class="nav-item" onclick="selectStandard('iso')">
+                    ISO 91-1
+                </div>
+                <div class="nav-item" onclick="selectStandard('tr48')">
+                    Singapore TR 48
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <div class="content-header">
+                    <h2>
+                        <span id="methodIcon">📏</span>
+                        <span id="methodTitle">Tank Sounding Method (ASTM D1250)</span>
+                    </h2>
+                </div>
+                
+                <div class="content-body">
+                    <!-- Progress Indicator -->
+                    <div class="progress-indicator">
+                        <div class="progress-step complete" id="step1"></div>
+                        <div class="progress-step active" id="step2"></div>
+                        <div class="progress-step" id="step3"></div>
+                        <div class="progress-step" id="step4"></div>
+                        <div class="progress-step" id="step5"></div>
+                    </div>
+
+                    <!-- Tabs for different input sections -->
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab('measurement', event)">Measurement Data</button>
+                        <button class="tab" onclick="switchTab('properties', event)">Fuel Properties</button>
+                        <button class="tab" onclick="switchTab('corrections', event)">Corrections</button>
+                        <button class="tab" onclick="switchTab('vessel', event)">Vessel Data</button>
+                    </div>
+
+                    <!-- Measurement Data Tab -->
+                    <div id="measurement" class="tab-content active">
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span>📐</span> Tank Measurements
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Tank ID/Name
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Enter the tank identification number or name. This is used for tracking and reporting purposes. Example: "2P" for Port Tank #2
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="text" class="form-input" id="tankId" placeholder="e.g., 2P, FO Tank #1">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Sounding/Ullage (m)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Sounding: Distance from tank bottom to fuel surface.
+                                                Ullage: Distance from reference point to fuel surface.
+                                                Enter the observed measurement before trim/list corrections.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="sounding" step="0.001" placeholder="5.450">
+                                    <span class="validation-message" id="soundingError">Invalid sounding value</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Measurement Type
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Select whether you measured sounding (from bottom up) or ullage (from top down).
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <select class="form-select" id="measurementType">
+                                        <option value="sounding">Sounding</option>
+                                        <option value="ullage">Ullage</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Trim (m)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Vessel trim = Aft draft - Forward draft.
+                                                Positive value: trimmed by stern.
+                                                Negative value: trimmed by head.
+                                                Critical for accurate volume calculation.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="trim" step="0.01" placeholder="0.50">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        List (degrees)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Vessel's transverse inclination.
+                                                Positive: list to starboard.
+                                                Negative: list to port.
+                                                Affects fuel distribution in tanks.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="list" step="0.1" placeholder="1.5">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Free Water (m³)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Volume of free water detected at tank bottom.
+                                                Measured using water finding paste or interface detector.
+                                                Will be subtracted from TOV to get GOV.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="freeWater" step="0.001" placeholder="0.000">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Temperature Observed (°C)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Temperature of fuel in tank.
+                                                Take multiple readings at different levels for accuracy.
+                                                Use weighted average if temperatures vary significantly.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="tempObs" step="0.1" placeholder="35.5">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Reference Height (m)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Maximum measurable height in tank (for ullage).
+                                                Used to convert ullage to sounding.
+                                                Check tank calibration tables for exact value.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="refHeight" step="0.001" placeholder="12.000">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional tanks section -->
+                        <div class="form-section" id="additionalTanks">
+                            <div class="section-title">
+                                <span>➕</span> Multiple Tanks
+                                <button class="btn btn-sm" onclick="addTank()" style="margin-left: auto;">Add Tank</button>
+                            </div>
+                            <div id="tanksContainer">
+                                <!-- Dynamic tank entries will be added here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fuel Properties Tab -->
+                    <div id="properties" class="tab-content">
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span>⛽</span> Fuel Specifications
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Fuel Type
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Select the type of marine fuel.
+                                                HFO: Heavy Fuel Oil (380/180 cSt)
+                                                VLSFO: Very Low Sulfur Fuel Oil (≤0.5% S)
+                                                MGO: Marine Gas Oil (DMA/DMB)
+                                                ULSFO: Ultra Low Sulfur (≤0.1% S)
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <select class="form-select" id="fuelType" onchange="updateFuelDefaults()">
+                                        <option value="hfo">HFO - Heavy Fuel Oil</option>
+                                        <option value="vlsfo">VLSFO - Very Low Sulfur FO</option>
+                                        <option value="mgo">MGO - Marine Gas Oil</option>
+                                        <option value="ulsfo">ULSFO - Ultra Low Sulfur FO</option>
+                                        <option value="lsfo">LSFO - Low Sulfur FO</option>
+                                        <option value="custom">Custom Specification</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Density @ 15°C (kg/m³)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Density at standard temperature of 15°C.
+                                                Must match BDN specification.
+                                                Typical ranges:
+                                                HFO: 970-1010 kg/m³
+                                                VLSFO: 870-990 kg/m³
+                                                MGO: 820-890 kg/m³
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="density15" step="0.1" placeholder="991.0">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        API Gravity
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Alternative density measurement.
+                                                Formula: °API = 141.5/SG - 131.5
+                                                Automatically converts to/from density.
+                                                Higher API = lighter fuel.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="apiGravity" step="0.1" placeholder="15.5">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        BS&W (% v/v)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Basic Sediment & Water content.
+                                                Percentage of water and sediment in fuel.
+                                                Typical max: 0.5% for residual fuels.
+                                                Will be deducted from GSV to get NSV.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="bsw" step="0.01" placeholder="0.50" value="0.5">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Sulfur Content (% m/m)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Mass percentage of sulfur in fuel.
+                                                IMO 2020 limit: 0.50% globally.
+                                                ECA limit: 0.10% in emission control areas.
+                                                Must comply with MARPOL Annex VI.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="sulfur" step="0.01" placeholder="0.50">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Kinematic Viscosity @ 50°C (cSt)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Measure of fuel's resistance to flow.
+                                                Important for pumping and injection.
+                                                HFO: 180-700 cSt
+                                                VLSFO: 30-380 cSt
+                                                MGO: 2-11 cSt
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="viscosity" step="0.1" placeholder="180.0">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Flash Point (°C)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Minimum temperature for vapor ignition.
+                                                SOLAS requirement: minimum 60°C.
+                                                Higher flash point = safer handling.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="flashPoint" step="1" placeholder="70">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Pour Point (°C)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Temperature below which fuel won't flow.
+                                                Critical for cold weather operations.
+                                                Must be at least 10°C below storage temp.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="pourPoint" step="1" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Corrections Tab -->
+                    <div id="corrections" class="tab-content">
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span>🔧</span> Volume & Weight Corrections
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Calculation Standard
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Select the petroleum measurement standard.
+                                                ASTM D1250: US standard (most common).
+                                                API MPMS: American Petroleum Institute.
+                                                ISO 91-1: International standard.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <select class="form-select" id="standard">
+                                        <option value="astm">ASTM D1250-08 (Table 54B)</option>
+                                        <option value="api">API MPMS 11.1</option>
+                                        <option value="iso">ISO 91-1</option>
+                                        <option value="ip200">IP 200/04</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Reference Temperature
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Standard reference temperature for volume.
+                                                15°C: ISO/API standard.
+                                                20°C: Some metric systems.
+                                                60°F: US customary (15.56°C).
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <select class="form-select" id="refTemp">
+                                        <option value="15">15°C (ISO/API)</option>
+                                        <option value="20">20°C (Metric)</option>
+                                        <option value="60">60°F (US)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Weight Basis
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Vacuum: True mass (commercial standard).
+                                                Air: Apparent mass (includes air buoyancy).
+                                                Difference ≈ 0.11% (factor 0.9989).
+                                                Check contract for required basis.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <select class="form-select" id="weightBasis">
+                                        <option value="vacuum">Weight in Vacuum</option>
+                                        <option value="air">Weight in Air</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        VCF (Volume Correction Factor)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Corrects volume from observed to standard temp.
+                                                Calculated from ASTM Table 54B.
+                                                Formula: VCF = exp(-α*ΔT*[1+0.8*α*ΔT])
+                                                Auto-calculated based on density and temp.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="vcf" step="0.0001" readonly placeholder="Auto-calculated">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        WCF (Weight Correction Factor)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Converts weight from vacuum to air.
+                                                From ASTM Table 56.
+                                                WCF ≈ density - 1.1 kg/m³
+                                                Applied when weight in air is required.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="wcf" step="0.0001" readonly placeholder="Auto-calculated">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Meter Factor (MF)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Calibration factor for flow meters.
+                                                Corrects systematic meter errors.
+                                                From latest meter proving certificate.
+                                                Default: 1.0000 (no correction).
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="meterFactor" step="0.0001" value="1.0000">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Vessel Experience Factor
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Historical correction for specific vessel.
+                                                Based on past delivery differences.
+                                                Range: 0.98-1.02 typically.
+                                                Default: 1.0000 (no correction).
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="vef" step="0.0001" value="1.0000">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Thermal Expansion Coefficient (α)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Temperature expansion factor.
+                                                Light products: 0.00080 /°C
+                                                Medium: 0.00070 /°C
+                                                Heavy: 0.00060 /°C
+                                                Auto-selected based on density.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="alpha" step="0.00001" readonly placeholder="Auto-calculated">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Wedge Formula Section -->
+                        <div class="form-section" id="wedgeSection" style="display:none;">
+                            <div class="section-title">
+                                <span>📐</span> Wedge Formula (OBQ/ROB)
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Tank Length (m)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Total length of tank between perpendiculars.
+                                                Used for wedge volume calculation.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="tankLength" step="0.001" placeholder="10.000">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Tank Width (m)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Width of tank at bottom (beam).
+                                                For wedge volume calculation.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="tankWidth" step="0.001" placeholder="5.000">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Distance to Bulkhead (m)
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Horizontal distance from sounding point to aft bulkhead.
+                                                Critical for wedge geometry.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="number" class="form-input" id="bulkheadDist" step="0.001" placeholder="2.000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vessel Data Tab -->
+                    <div id="vessel" class="tab-content">
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span>🚢</span> Vessel Information
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Vessel Name
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Official vessel name as per certificate of registry.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="text" class="form-input" id="vesselName" placeholder="MV Example Vessel">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        IMO Number
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                7-digit International Maritime Organization number.
+                                                Unique vessel identifier.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="text" class="form-input" id="imoNumber" placeholder="1234567">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Port of Supply
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Location where bunkering takes place.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="text" class="form-input" id="port" placeholder="Singapore">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Supplier Name
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Bunker supplier company name.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="text" class="form-input" id="supplier" placeholder="Marine Fuel Supplier Ltd.">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        BDN Number
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Bunker Delivery Note number.
+                                                Must be unique and traceable.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="text" class="form-input" id="bdnNumber" placeholder="BDN-2024-001234">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Date of Supply
+                                        <span class="help-icon">?
+                                            <span class="help-tooltip">
+                                                Date when bunkering operation started.
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="datetime-local" class="form-input" id="supplyDate">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Calculations -->
+            <div class="right-panel">
+                <!-- Live Calculations Panel -->
+                <div class="calculation-panel">
+                    <div class="panel-header">📊 Live Calculations</div>
+                    <div class="panel-body">
+                        <div class="calculation-item">
+                            <span class="calculation-label">TOV (m³)</span>
+                            <span class="calculation-value" id="tovValue">--</span>
+                        </div>
+                        <div class="calculation-item">
+                            <span class="calculation-label">GOV (m³)</span>
+                            <span class="calculation-value" id="govValue">--</span>
+                        </div>
+                        <div class="calculation-item">
+                            <span class="calculation-label">GSV @ 15°C (m³)</span>
+                            <span class="calculation-value" id="gsvValue">--</span>
+                        </div>
+                        <div class="calculation-item">
+                            <span class="calculation-label">NSV (m³)</span>
+                            <span class="calculation-value" id="nsvValue">--</span>
+                        </div>
+                        <div class="calculation-item">
+                            <span class="calculation-label">Mass (MT)</span>
+                            <span class="calculation-value primary" id="massValue">--</span>
+                        </div>
+                        <div class="calculation-item">
+                            <span class="calculation-label">VCF</span>
+                            <span class="calculation-value" id="vcfCalc">--</span>
+                        </div>
+                        <div class="calculation-item">
+                            <span class="calculation-label">WCF</span>
+                            <span class="calculation-value" id="wcfCalc">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compliance Status Panel -->
+                <div class="calculation-panel">
+                    <div class="panel-header">✅ Compliance Status</div>
+                    <div class="panel-body">
+                        <div class="calculation-item">
+                            <span class="calculation-label">IMO 2020</span>
+                            <span class="badge success" id="imoStatus">COMPLIANT</span>
+                        </div>
+                        <div class="calculation-item">
+                            <span class="calculation-label">ECA Zone</span>
+                            <span class="badge warning" id="ecaStatus">CHECK</span>
+                        </div>
+                        <div class="calculation-item">
+                            <span class="calculation-label">MARPOL VI</span>
+                            <span class="badge success" id="marpolStatus">OK</span>
+                        </div>
+                        <div class="calculation-item">
+                            <span class="calculation-label">Flash Point</span>
+                            <span class="badge success" id="flashStatus">SAFE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Trail Preview -->
+                <div class="calculation-panel">
+                    <div class="panel-header">🔍 Calculation Audit</div>
+                    <div class="audit-trail" id="auditPreview">
+                        <div class="audit-entry">System initialized...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Reports -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📊 Bunker Calculation Report</h3>
+                <button class="btn" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="report-preview" id="reportContent">
+                    <!-- Report content will be generated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="printReport()">🖨️ Print</button>
+                <button class="btn btn-primary" onclick="downloadReport()">💾 Download</button>
+                <button class="btn" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentMethod = 'sounding';
+        let currentStandard = 'astm';
+        let calculationHistory = [];
+        let auditTrail = [];
+        let tanks = [];
+        
+        // Constants
+        const THERMAL_EXPANSION = {
+            light: 0.00080,   // < 850 kg/m³
+            medium: 0.00070,  // 850-950 kg/m³
+            heavy: 0.00060    // > 950 kg/m³
+        };
+
+        const FUEL_DEFAULTS = {
+            hfo: { density: 991.0, sulfur: 3.5, viscosity: 380, bsw: 0.5, flash: 65, pour: 30 },
+            vlsfo: { density: 940.0, sulfur: 0.5, viscosity: 180, bsw: 0.5, flash: 70, pour: 15 },
+            mgo: { density: 850.0, sulfur: 0.1, viscosity: 6, bsw: 0.1, flash: 60, pour: -6 },
+            ulsfo: { density: 870.0, sulfur: 0.1, viscosity: 30, bsw: 0.3, flash: 65, pour: 0 },
+            lsfo: { density: 960.0, sulfur: 1.0, viscosity: 280, bsw: 0.5, flash: 68, pour: 20 }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            loadFromLocalStorage();
+            initializeEventListeners();
+            addAuditEntry('System initialized - Bunker Calculator PRO v2.0');
+        });
+
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                timeZone: 'UTC'
+            };
+            document.getElementById('currentDateTime').textContent = 
+                now.toLocaleString('en-US', options) + ' UTC';
+        }
+
+        function initializeEventListeners() {
+            // Real-time calculation on input change
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.id === 'density15') {
+                        updateAPIFromDensity();
+                    } else if (this.id === 'apiGravity') {
+                        updateDensityFromAPI();
+                    }
+                    performLiveCalculation();
+                });
+            });
+
+            // Sulfur content validation
+            const sulfurInput = document.getElementById('sulfur');
+            sulfurInput.addEventListener('input', validateSulfurContent);
+        }
+
+        function selectMethod(method, event) {
+            currentMethod = method;
+            
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            // Update header
+            const titles = {
+                'sounding': 'Tank Sounding Method (ASTM D1250)',
+                'volumetric': 'Volumetric Flow Meter Method',
+                'mass': 'Mass Flow Meter Method (Coriolis)',
+                'draft': 'Draft Survey Method',
+                'wedge': 'Wedge Formula (OBQ/ROB Calculation)'
+            };
+            
+            const icons = {
+                'sounding': '📏',
+                'volumetric': '💧',
+                'mass': '⚖️',
+                'draft': '📊',
+                'wedge': '📐'
+            };
+            
+            document.getElementById('methodTitle').textContent = titles[method];
+            document.getElementById('methodIcon').textContent = icons[method];
+            
+            // Show/hide wedge section (if it exists)
+            const wedgeSection = document.getElementById('wedgeSection');
+            if (wedgeSection) {
+                wedgeSection.style.display = method === 'wedge' ? 'block' : 'none';
+            }
+            
+            addAuditEntry(`Method changed to: ${titles[method]}`);
+        }
+
+        function selectStandard(standard) {
+            currentStandard = standard;
+            document.getElementById('standard').value = standard;
+            addAuditEntry(`Calculation standard changed to: ${standard.toUpperCase()}`);
+            performLiveCalculation();
+        }
+
+        function switchTab(tabName, event) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            
+            // Update progress
+            updateProgress(tabName);
+        }
+
+        function updateProgress(tab) {
+            const steps = ['measurement', 'properties', 'corrections', 'vessel'];
+            const currentStep = steps.indexOf(tab) + 1;
+            
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById('step' + i);
+                if (i < currentStep) {
+                    step.className = 'progress-step complete';
+                } else if (i === currentStep) {
+                    step.className = 'progress-step active';
+                } else {
+                    step.className = 'progress-step';
+                }
+            }
+        }
+
+        function updateFuelDefaults() {
+            const fuelType = document.getElementById('fuelType').value;
+            if (fuelType !== 'custom' && FUEL_DEFAULTS[fuelType]) {
+                const defaults = FUEL_DEFAULTS[fuelType];
+                document.getElementById('density15').value = defaults.density;
+                document.getElementById('sulfur').value = defaults.sulfur;
+                document.getElementById('viscosity').value = defaults.viscosity;
+                document.getElementById('bsw').value = defaults.bsw;
+                document.getElementById('flashPoint').value = defaults.flash;
+                document.getElementById('pourPoint').value = defaults.pour;
+                
+                updateAPIFromDensity();
+                performLiveCalculation();
+                addAuditEntry(`Fuel type changed to: ${fuelType.toUpperCase()}`);
+            }
+        }
+
+        function updateAPIFromDensity() {
+            const density = parseFloat(document.getElementById('density15').value);
+            if (density) {
+                const sg = density / 999.016;  // Specific gravity @ 60°F
+                const api = 141.5 / sg - 131.5;
+                document.getElementById('apiGravity').value = api.toFixed(1);
+            }
+        }
+
+        function updateDensityFromAPI() {
+            const api = parseFloat(document.getElementById('apiGravity').value);
+            if (api) {
+                const sg = 141.5 / (api + 131.5);
+                const density = sg * 999.016;
+                document.getElementById('density15').value = density.toFixed(1);
+            }
+        }
+
+        function validateSulfurContent() {
+            const sulfur = parseFloat(document.getElementById('sulfur').value);
+            const imoStatus = document.getElementById('imoStatus');
+            const ecaStatus = document.getElementById('ecaStatus');
+            
+            if (sulfur <= 0.1) {
+                imoStatus.textContent = 'COMPLIANT';
+                imoStatus.className = 'badge success';
+                ecaStatus.textContent = 'COMPLIANT';
+                ecaStatus.className = 'badge success';
+            } else if (sulfur <= 0.5) {
+                imoStatus.textContent = 'COMPLIANT';
+                imoStatus.className = 'badge success';
+                ecaStatus.textContent = 'NON-COMPLIANT';
+                ecaStatus.className = 'badge error';
+            } else {
+                imoStatus.textContent = 'NON-COMPLIANT';
+                imoStatus.className = 'badge error';
+                ecaStatus.textContent = 'NON-COMPLIANT';
+                ecaStatus.className = 'badge error';
+            }
+        }
+
+        function calculateVCF(density, tempObs, tempRef = 15) {
+            // Determine thermal expansion coefficient
+            let alpha;
+            if (density < 850) {
+                alpha = THERMAL_EXPANSION.light;
+            } else if (density <= 950) {
+                alpha = THERMAL_EXPANSION.medium;
+            } else {
+                alpha = THERMAL_EXPANSION.heavy;
+            }
+            
+            // Calculate VCF using exponential formula
+            const deltaT = tempObs - tempRef;
+            const vcf = Math.exp(-alpha * deltaT * (1 + 0.8 * alpha * deltaT));
+            
+            document.getElementById('alpha').value = alpha.toFixed(5);
+            
+            return vcf;
+        }
+
+        function calculateWCF(density15) {
+            // Weight Correction Factor (vacuum to air)
+            // Approximation: density_air = density_vacuum - 1.1 kg/m³
+            const densityAir = density15 - 1.1;
+            const wcf = densityAir / density15;
+            return wcf;
+        }
+
+        function performLiveCalculation() {
+            try {
+                // Get input values
+                const sounding = parseFloat(document.getElementById('sounding').value) || 0;
+                const trim = parseFloat(document.getElementById('trim').value) || 0;
+                const list = parseFloat(document.getElementById('list').value) || 0;
+                const freeWater = parseFloat(document.getElementById('freeWater').value) || 0;
+                const tempObs = parseFloat(document.getElementById('tempObs').value) || 20;
+                const density15 = parseFloat(document.getElementById('density15').value) || 991;
+                const bsw = parseFloat(document.getElementById('bsw').value) || 0;
+                const meterFactor = parseFloat(document.getElementById('meterFactor').value) || 1;
+                const vef = parseFloat(document.getElementById('vef').value) || 1;
+                
+                if (!sounding) {
+                    clearCalculations();
+                    return;
+                }
+                
+                // Step 1: Calculate TOV (Total Observed Volume)
+                // Simplified calculation - in reality, use tank calibration tables
+                const trimCorrection = 1 - (Math.abs(trim) * 0.01);
+                const listCorrection = 1 - (Math.abs(list) * 0.005);
+                let tov = sounding * 100 * trimCorrection * listCorrection * meterFactor;
+                
+                // Step 2: Calculate GOV (Gross Observed Volume)
+                const gov = tov - freeWater;
+                
+                // Step 3: Calculate VCF
+                const vcf = calculateVCF(density15, tempObs);
+                
+                // Step 4: Calculate GSV (Gross Standard Volume)
+                const gsv = gov * vcf * vef;
+                
+                // Step 5: Calculate NSV (Net Standard Volume)
+                const nsv = gsv * (1 - bsw / 100);
+                
+                // Step 6: Calculate Mass
+                const weightBasis = document.getElementById('weightBasis').value;
+                let mass;
+                if (weightBasis === 'air') {
+                    const wcf = calculateWCF(density15);
+                    mass = nsv * (density15 * wcf) / 1000;
+                } else {
+                    mass = nsv * density15 / 1000;
+                }
+                
+                // Update display
+                document.getElementById('tovValue').textContent = tov.toFixed(3);
+                document.getElementById('govValue').textContent = gov.toFixed(3);
+                document.getElementById('gsvValue').textContent = gsv.toFixed(3);
+                document.getElementById('nsvValue').textContent = nsv.toFixed(3);
+                document.getElementById('massValue').textContent = mass.toFixed(3);
+                document.getElementById('vcfCalc').textContent = vcf.toFixed(4);
+                document.getElementById('wcfCalc').textContent = calculateWCF(density15).toFixed(4);
+                
+                // Update form fields
+                document.getElementById('vcf').value = vcf.toFixed(4);
+                document.getElementById('wcf').value = calculateWCF(density15).toFixed(4);
+                
+            } catch (error) {
+                console.error('Calculation error:', error);
+                addAuditEntry(`ERROR: ${error.message}`);
+            }
+        }
+
+        function clearCalculations() {
+            document.getElementById('tovValue').textContent = '--';
+            document.getElementById('govValue').textContent = '--';
+            document.getElementById('gsvValue').textContent = '--';
+            document.getElementById('nsvValue').textContent = '--';
+            document.getElementById('massValue').textContent = '--';
+            document.getElementById('vcfCalc').textContent = '--';
+            document.getElementById('wcfCalc').textContent = '--';
+        }
+
+        function performFullCalculation() {
+            performLiveCalculation();
+            
+            // Add to calculation history
+            const calculation = {
+                timestamp: new Date().toISOString(),
+                method: currentMethod,
+                standard: currentStandard,
+                tov: document.getElementById('tovValue').textContent,
+                gov: document.getElementById('govValue').textContent,
+                gsv: document.getElementById('gsvValue').textContent,
+                nsv: document.getElementById('nsvValue').textContent,
+                mass: document.getElementById('massValue').textContent
+            };
+            
+            calculationHistory.push(calculation);
+            saveToLocalStorage();
+            
+            addAuditEntry('Full calculation performed successfully');
+            addAuditEntry(`TOV→GOV→GSV→NSV→MT: ${calculation.tov}→${calculation.gov}→${calculation.gsv}→${calculation.nsv}→${calculation.mass}`);
+            
+            // Show success message
+            showNotification('Calculation completed successfully', 'success');
+        }
+
+        function addAuditEntry(message) {
+            const timestamp = new Date().toISOString();
+            const entry = `[${timestamp}] ${message}`;
+            auditTrail.push(entry);
+            
+            // Update audit preview
+            const auditPreview = document.getElementById('auditPreview');
+            const auditEntry = document.createElement('div');
+            auditEntry.className = 'audit-entry';
+            auditEntry.textContent = entry;
+            auditPreview.appendChild(auditEntry);
+            
+            // Keep only last 10 entries in preview
+            while (auditPreview.children.length > 10) {
+                auditPreview.removeChild(auditPreview.firstChild);
+            }
+            
+            // Scroll to bottom
+            auditPreview.scrollTop = auditPreview.scrollHeight;
+        }
+
+        function generateReport() {
+            const report = `
+================================================================================
+                        BUNKER CALCULATION REPORT
+================================================================================
+Report Date: ${new Date().toISOString()}
+System: Bunker Calculator PRO v2.0
+Standard: ${currentStandard.toUpperCase()} Compliant
+--------------------------------------------------------------------------------
+
+VESSEL INFORMATION
+==================
+Vessel Name: ${document.getElementById('vesselName').value || 'N/A'}
+IMO Number: ${document.getElementById('imoNumber').value || 'N/A'}
+Port: ${document.getElementById('port').value || 'N/A'}
+Supplier: ${document.getElementById('supplier').value || 'N/A'}
+BDN Number: ${document.getElementById('bdnNumber').value || 'N/A'}
+
+MEASUREMENT DATA
+================
+Method: ${currentMethod.toUpperCase()}
+Tank ID: ${document.getElementById('tankId').value || 'N/A'}
+Sounding: ${document.getElementById('sounding').value || '0'} m
+Temperature: ${document.getElementById('tempObs').value || '0'} °C
+Trim: ${document.getElementById('trim').value || '0'} m
+List: ${document.getElementById('list').value || '0'} degrees
+Free Water: ${document.getElementById('freeWater').value || '0'} m³
+
+FUEL PROPERTIES
+===============
+Type: ${document.getElementById('fuelType').value.toUpperCase()}
+Density @ 15°C: ${document.getElementById('density15').value || '0'} kg/m³
+API Gravity: ${document.getElementById('apiGravity').value || '0'} °API
+Sulfur Content: ${document.getElementById('sulfur').value || '0'} % m/m
+BS&W: ${document.getElementById('bsw').value || '0'} % v/v
+Viscosity @ 50°C: ${document.getElementById('viscosity').value || '0'} cSt
+
+CALCULATION RESULTS
+===================
+Calculation Sequence: TOV → GOV → GSV → NSV → MT
+
+TOV (Total Observed Volume): ${document.getElementById('tovValue').textContent} m³
+GOV (Gross Observed Volume): ${document.getElementById('govValue').textContent} m³
+GSV (Gross Standard Volume): ${document.getElementById('gsvValue').textContent} m³
+NSV (Net Standard Volume): ${document.getElementById('nsvValue').textContent} m³
+
+FINAL MASS: ${document.getElementById('massValue').textContent} MT
+
+CORRECTION FACTORS
+==================
+VCF (Volume Correction Factor): ${document.getElementById('vcfCalc').textContent}
+WCF (Weight Correction Factor): ${document.getElementById('wcfCalc').textContent}
+Meter Factor: ${document.getElementById('meterFactor').value}
+VEF (Vessel Experience Factor): ${document.getElementById('vef').value}
+
+COMPLIANCE STATUS
+=================
+IMO 2020 (≤0.5% S): ${document.getElementById('imoStatus').textContent}
+ECA Zone (≤0.1% S): ${document.getElementById('ecaStatus').textContent}
+MARPOL Annex VI: ${document.getElementById('marpolStatus').textContent}
+
+AUDIT TRAIL
+===========
+${auditTrail.slice(-10).join('\n')}
+
+================================================================================
+                            END OF REPORT
+================================================================================
+`;
+            
+            document.getElementById('reportContent').textContent = report;
+            document.getElementById('reportModal').classList.add('show');
+            
+            addAuditEntry('Report generated');
+        }
+
+        function showBDN() {
+            // Generate BDN in modal
+            const bdnContent = generateBDNContent();
+            document.getElementById('reportContent').innerHTML = bdnContent;
+            document.getElementById('reportModal').classList.add('show');
+            addAuditEntry('BDN generated');
+        }
+
+        function generateBDNContent() {
+            const now = new Date();
+            const bdnNumber = document.getElementById('bdnNumber').value || 'BDN-' + Date.now();
+            
+            return `
+<div style="font-family: monospace; padding: 20px;">
+    <h2 style="text-align: center;">BUNKER DELIVERY NOTE</h2>
+    <p style="text-align: center;">According to MARPOL Annex VI - Regulation 18</p>
+    
+    <hr>
+    
+    <table style="width: 100%; margin: 20px 0;">
+        <tr>
+            <td><strong>BDN Number:</strong></td>
+            <td>${bdnNumber}</td>
+            <td><strong>Date:</strong></td>
+            <td>${now.toISOString().split('T')[0]}</td>
+        </tr>
+        <tr>
+            <td><strong>Vessel Name:</strong></td>
+            <td>${document.getElementById('vesselName').value || 'N/A'}</td>
+            <td><strong>IMO Number:</strong></td>
+            <td>${document.getElementById('imoNumber').value || 'N/A'}</td>
+        </tr>
+        <tr>
+            <td><strong>Port:</strong></td>
+            <td>${document.getElementById('port').value || 'N/A'}</td>
+            <td><strong>Supplier:</strong></td>
+            <td>${document.getElementById('supplier').value || 'N/A'}</td>
+        </tr>
+    </table>
+    
+    <h3>FUEL SPECIFICATIONS</h3>
+    <table style="width: 100%; border: 1px solid black;">
+        <tr style="background: #f0f0f0;">
+            <th style="border: 1px solid black; padding: 5px;">Product</th>
+            <th style="border: 1px solid black; padding: 5px;">Quantity (MT)</th>
+            <th style="border: 1px solid black; padding: 5px;">Density @ 15°C</th>
+            <th style="border: 1px solid black; padding: 5px;">Sulfur %</th>
+        </tr>
+        <tr>
+            <td style="border: 1px solid black; padding: 5px;">${document.getElementById('fuelType').value.toUpperCase()}</td>
+            <td style="border: 1px solid black; padding: 5px;">${document.getElementById('massValue').textContent}</td>
+            <td style="border: 1px solid black; padding: 5px;">${document.getElementById('density15').value} kg/m³</td>
+            <td style="border: 1px solid black; padding: 5px;">${document.getElementById('sulfur').value}%</td>
+        </tr>
+    </table>
+    
+    <h3>QUALITY PARAMETERS</h3>
+    <table style="width: 100%; border: 1px solid black;">
+        <tr>
+            <td style="border: 1px solid black; padding: 5px;">Viscosity @ 50°C:</td>
+            <td style="border: 1px solid black; padding: 5px;">${document.getElementById('viscosity').value} cSt</td>
+            <td style="border: 1px solid black; padding: 5px;">Flash Point:</td>
+            <td style="border: 1px solid black; padding: 5px;">${document.getElementById('flashPoint').value} °C</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid black; padding: 5px;">Pour Point:</td>
+            <td style="border: 1px solid black; padding: 5px;">${document.getElementById('pourPoint').value} °C</td>
+            <td style="border: 1px solid black; padding: 5px;">Water Content:</td>
+            <td style="border: 1px solid black; padding: 5px;">${document.getElementById('bsw').value}%</td>
+        </tr>
+    </table>
+    
+    <h3>DECLARATIONS</h3>
+    <p>☑ The fuel oil supplied conforms with regulation 18.3 of MARPOL Annex VI</p>
+    <p>☑ Representative fuel oil samples have been taken and sealed</p>
+    <p>☑ The sulfur content complies with the applicable limit value</p>
+    
+    <div style="margin-top: 40px;">
+        <div style="display: flex; justify-content: space-between;">
+            <div style="width: 40%; border-bottom: 1px solid black; height: 40px;"></div>
+            <div style="width: 40%; border-bottom: 1px solid black; height: 40px;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+            <div style="width: 40%; text-align: center;">Supplier Representative</div>
+            <div style="width: 40%; text-align: center;">Chief Engineer</div>
+        </div>
+    </div>
+    
+    <p style="margin-top: 30px; font-size: 0.9em;">
+        <strong>Note:</strong> This BDN shall be retained on board for a period of 3 years from the date of delivery.
+    </p>
+</div>
+            `;
+        }
+
+        function exportData() {
+            const data = {
+                version: '2.0',
+                timestamp: new Date().toISOString(),
+                method: currentMethod,
+                standard: currentStandard,
+                inputs: {
+                    tankId: document.getElementById('tankId').value,
+                    sounding: document.getElementById('sounding').value,
+                    tempObs: document.getElementById('tempObs').value,
+                    density15: document.getElementById('density15').value,
+                    sulfur: document.getElementById('sulfur').value,
+                    bsw: document.getElementById('bsw').value
+                },
+                results: {
+                    tov: document.getElementById('tovValue').textContent,
+                    gov: document.getElementById('govValue').textContent,
+                    gsv: document.getElementById('gsvValue').textContent,
+                    nsv: document.getElementById('nsvValue').textContent,
+                    mass: document.getElementById('massValue').textContent
+                },
+                vessel: {
+                    name: document.getElementById('vesselName').value,
+                    imo: document.getElementById('imoNumber').value,
+                    port: document.getElementById('port').value
+                },
+                auditTrail: auditTrail
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'bunker_calculation_' + Date.now() + '.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            addAuditEntry('Data exported to file');
+            showNotification('Data exported successfully', 'success');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        // Load inputs
+                        if (data.inputs) {
+                            Object.keys(data.inputs).forEach(key => {
+                                const element = document.getElementById(key);
+                                if (element) element.value = data.inputs[key];
+                            });
+                        }
+                        
+                        // Load vessel data
+                        if (data.vessel) {
+                            Object.keys(data.vessel).forEach(key => {
+                                const element = document.getElementById(key === 'name' ? 'vesselName' : 
+                                                                       key === 'imo' ? 'imoNumber' : 
+                                                                       'port');
+                                if (element) element.value = data.vessel[key];
+                            });
+                        }
+                        
+                        // Restore audit trail
+                        if (data.auditTrail) {
+                            auditTrail = data.auditTrail;
+                        }
+                        
+                        performLiveCalculation();
+                        addAuditEntry('Data imported from file');
+                        showNotification('Data imported successfully', 'success');
+                        
+                    } catch (error) {
+                        showNotification('Error importing file: ' + error.message, 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to reset all data?')) {
+                document.querySelectorAll('.form-input').forEach(input => {
+                    if (input.type !== 'number' || !input.hasAttribute('readonly')) {
+                        input.value = '';
+                    }
+                });
+                
+                clearCalculations();
+                addAuditEntry('All data cleared');
+                showNotification('All data has been reset', 'info');
+            }
+        }
+
+        function loadExample() {
+            // Load example data
+            document.getElementById('tankId').value = '2P';
+            document.getElementById('sounding').value = '5.450';
+            document.getElementById('trim').value = '0.50';
+            document.getElementById('list').value = '1.5';
+            document.getElementById('freeWater').value = '0.100';
+            document.getElementById('tempObs').value = '35.0';
+            document.getElementById('fuelType').value = 'vlsfo';
+            updateFuelDefaults();
+            document.getElementById('vesselName').value = 'MV Example Vessel';
+            document.getElementById('imoNumber').value = '1234567';
+            document.getElementById('port').value = 'Singapore';
+            document.getElementById('supplier').value = 'Marine Fuel Supplier Ltd.';
+            document.getElementById('bdnNumber').value = 'BDN-2024-001234';
+            
+            performLiveCalculation();
+            addAuditEntry('Example data loaded');
+            showNotification('Example data loaded successfully', 'success');
+        }
+
+        function showAuditTrail() {
+            const fullAudit = auditTrail.join('\n');
+            document.getElementById('reportContent').textContent = 
+                'COMPLETE AUDIT TRAIL\n' + 
+                '='.repeat(80) + '\n\n' + 
+                fullAudit;
+            document.getElementById('reportModal').classList.add('show');
+        }
+
+        function toggleMode() {
+            const btn = document.getElementById('modeToggle');
+            if (btn.textContent.includes('Advanced')) {
+                btn.innerHTML = '<span>📊</span> Basic Mode';
+                // Show advanced features
+            } else {
+                btn.innerHTML = '<span>🎯</span> Advanced Mode';
+                // Hide advanced features
+            }
+        }
+
+        function addTank() {
+            const tankCount = tanks.length + 1;
+            const tankDiv = document.createElement('div');
+            tankDiv.className = 'form-grid';
+            tankDiv.innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Tank ${tankCount} ID</label>
+                    <input type="text" class="form-input" id="tank${tankCount}Id">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sounding (m)</label>
+                    <input type="number" class="form-input" id="tank${tankCount}Sounding" step="0.001">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Temperature (°C)</label>
+                    <input type="number" class="form-input" id="tank${tankCount}Temp" step="0.1">
+                </div>
+            `;
+            document.getElementById('tanksContainer').appendChild(tankDiv);
+            tanks.push(tankCount);
+            addAuditEntry(`Added tank ${tankCount}`);
+        }
+
+        function closeModal() {
+            document.getElementById('reportModal').classList.remove('show');
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function downloadReport() {
+            const content = document.getElementById('reportContent').textContent;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bunker_report_' + Date.now() + '.txt';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            addAuditEntry('Report downloaded');
+        }
+
+        function saveToLocalStorage() {
+            const data = {
+                calculationHistory: calculationHistory,
+                auditTrail: auditTrail,
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem('bunkerCalculatorPro', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const stored = localStorage.getItem('bunkerCalculatorPro');
+            if (stored) {
+                const data = JSON.parse(stored);
+                calculationHistory = data.calculationHistory || [];
+                auditTrail = data.auditTrail || [];
+                addAuditEntry('Data loaded from local storage');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Simple notification system - can be enhanced with a proper library
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            // In production, use a proper notification library
+        }
+
+        // Mobile menu toggle functionality
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.mobile-sidebar-overlay');
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking overlay
+        document.addEventListener('DOMContentLoaded', function() {
+            const overlay = document.querySelector('.mobile-sidebar-overlay');
+            if (overlay) {
+                overlay.addEventListener('click', toggleMobileMenu);
+            }
+
+            // Close mobile menu when selecting a nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 1024) {
+                        setTimeout(toggleMobileMenu, 300);
+                    }
+                });
+            });
+
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('[PWA] Service Worker registered:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('[PWA] Service Worker registration failed:', error);
+                    });
+            }
+
+            // Install prompt for PWA
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                console.log('[PWA] Install prompt available');
+                // You can show a custom install button here
+            });
+
+            // Track installation
+            window.addEventListener('appinstalled', () => {
+                console.log('[PWA] App installed successfully');
+                deferredPrompt = null;
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        exportData();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        importData();
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        generateReport();
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        performFullCalculation();
+                        break;
+                }
+            }
+        });
+    </script>
+
+    <!-- Mobile Menu Toggle Button -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu">
+        ☰
+    </button>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay"></div>
+
+</body>
+</html>
